@@ -23,7 +23,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS espacos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
-                descricao TEXT NOT NULL,GB
+                descricao TEXT NOT NULL,
                 localizacao TEXT NOT NULL
             );
 
