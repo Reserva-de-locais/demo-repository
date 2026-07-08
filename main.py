@@ -142,3 +142,110 @@ def buscar_espaco(id: int):
         raise HTTPException(404, "Espaço não encontrado")
 
     return Espaco(**dict(row))
+
+@app.post("/solicitacoes", response_model=Solicitacao, status_code=201)
+def criar_solicitacao(dados: SolicitacaoEntrada):
+
+    with get_conn() as conn:
+
+        cur = conn.execute(
+            """
+            INSERT INTO solicitacoes
+            (usuario_id, espaco_id, data, horario, status)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                dados.usuario_id,
+                dados.espaco_id,
+                dados.data,
+                dados.horario,
+                "Pendente"
+            )
+        )
+
+        conn.commit()
+
+    return Solicitacao(
+        id=cur.lastrowid,
+        status="Pendente",
+        **dados.model_dump()
+    )
+    
+@app.get("/solicitacoes", response_model=list[Solicitacao])
+def listar_solicitacoes():
+
+    with get_conn() as conn:
+
+        rows = conn.execute(
+            "SELECT * FROM solicitacoes"
+        ).fetchall()
+
+    return [Solicitacao(**dict(r)) for r in rows]
+@app.put("/solicitacoes/{id}")
+def atualizar_status(id: int, status: str):
+
+    if status not in ["Aprovada", "Recusada"]:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Status inválido."
+        )
+
+    with get_conn() as conn:
+
+        res = conn.execute(
+            """
+            UPDATE solicitacoes
+            SET status=?
+            WHERE id=?
+            """,
+            (status, id)
+        )
+
+        conn.commit()
+
+    if res.rowcount == 0:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Solicitação não encontrada."
+        )
+
+    return {"mensagem": "Status atualizado."}
+
+@app.delete("/usuarios/{id}", status_code=204)
+def remover_usuario(id: int):
+
+    with get_conn() as conn:
+
+        res = conn.execute(
+            "DELETE FROM usuarios WHERE id=?",
+            (id,)
+        )
+
+        conn.commit()
+
+    if res.rowcount == 0:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Usuário não encontrado."
+        )
+@app.delete("/espacos/{id}", status_code=204)
+def remover_espaco(id: int):
+
+    with get_conn() as conn:
+
+        res = conn.execute(
+            "DELETE FROM espacos WHERE id=?",
+            (id,)
+        )
+
+        conn.commit()
+
+    if res.rowcount == 0:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Espaço não encontrado."
+        )
