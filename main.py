@@ -4,10 +4,14 @@ from typing import List
 
 from database import get_conn, init_db
 from models import (
-    Usuario, UsuarioEntrada, LoginEntrada,
-    Espaco, EspacoEntrada
+    Usuario,
+    UsuarioEntrada,
+    LoginEntrada,
+    Espaco,
+    EspacoEntrada,
+    Solicitacao,
+    SolicitacaoEntrada
 )
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
@@ -27,28 +31,22 @@ def raiz():
 
 # ═══════════════════ USUÁRIOS ═══════════════════
 
-@app.post("/usuarios", response_model=Usuario, status_code=201)
-def criar_usuario(dados: UsuarioEntrada):
+try:
+    cur = conn.execute(
+        """
+        INSERT INTO usuarios(nome,email,senha)
+        VALUES(?,?,?)
+        """,
+        (dados.nome, dados.email, dados.senha)
+    )
 
-    with get_conn() as conn:
+    conn.commit()
 
-        if len(dados.senha) < 6:
-            raise HTTPException(
-                status_code=400,
-                detail="Senha deve possuir no mínimo 6 caracteres."
-            )
-
-        cur = conn.execute(
-            """
-            INSERT INTO usuarios(nome,email,senha)
-            VALUES(?,?,?)
-            """,
-            (dados.nome, dados.email, dados.senha)
-        )
-
-        conn.commit()
-
-    return Usuario(id=cur.lastrowid, **dados.model_dump())
+except Exception:
+    raise HTTPException(
+        status_code=400,
+        detail="E-mail já cadastrado."
+    )
 
 
 @app.get("/usuarios", response_model=List[Usuario])
