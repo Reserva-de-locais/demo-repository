@@ -31,21 +31,37 @@ def raiz():
 
 # ═══════════════════ USUÁRIOS ═══════════════════
 
-try:
-    cur = conn.execute(
-        """
-        INSERT INTO usuarios(nome,email,senha)
-        VALUES(?,?,?)
-        """,
-        (dados.nome, dados.email, dados.senha)
-    )
+@app.post("/usuarios", response_model=Usuario, status_code=201)
+def criar_usuario(dados: UsuarioEntrada):
 
-    conn.commit()
+    with get_conn() as conn:
 
-except Exception:
-    raise HTTPException(
-        status_code=400,
-        detail="E-mail já cadastrado."
+        if len(dados.senha) < 6:
+            raise HTTPException(
+                status_code=400,
+                detail="Senha deve possuir no mínimo 6 caracteres."
+            )
+
+        try:
+            cur = conn.execute(
+                """
+                INSERT INTO usuarios(nome,email,senha)
+                VALUES(?,?,?)
+                """,
+                (dados.nome, dados.email, dados.senha)
+            )
+
+            conn.commit()
+
+        except Exception:
+            raise HTTPException(
+                status_code=400,
+                detail="E-mail já cadastrado."
+            )
+
+    return Usuario(
+        id=cur.lastrowid,
+        **dados.model_dump()
     )
 
 
@@ -92,7 +108,10 @@ def login(dados: LoginEntrada):
             detail="Email ou senha inválidos."
         )
 
-    return {"mensagem": "Login realizado com sucesso!"}
+  return {
+    "mensagem": "Login realizado com sucesso!",
+    "usuario": dict(usuario)
+}
 
 # ═══════════════════ ESPAÇOS ═══════════════════
 
