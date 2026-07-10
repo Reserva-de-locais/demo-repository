@@ -1,3 +1,5 @@
+from fastapi import Depends
+from security import verificar_api_key
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from typing import List
