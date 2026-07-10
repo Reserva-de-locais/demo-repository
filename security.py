@@ -1,13 +1,23 @@
-import httpx
-cep = 59960-000
-with httpx.Client() as client:
-    response = client.get("https://brasilapi.com.br/api/cep/v1/99999999" + cep)
+import os
+import hashlib
 
-    print("Status:", response.status_code)
+from fastapi import Header, HTTPException
+from dotenv import load_dotenv
 
-    if response.status_code == 200:
-        print("CEP encontrado:", response.json())
-    elif response.status_code == 404:
-        print("CEP não encontrado")
-    else:
-        print("Erro inesperado")
+load_dotenv()
+
+API_KEY_HASH = os.getenv("API_KEY_HASH")
+
+
+def verificar_api_key(x_api_key: str = Header(...)):
+
+    hash_recebido = hashlib.sha256(
+        x_api_key.encode()
+    ).hexdigest()
+
+    if hash_recebido != API_KEY_HASH:
+
+        raise HTTPException(
+            status_code=401,
+            detail="API Key inválida."
+        )
