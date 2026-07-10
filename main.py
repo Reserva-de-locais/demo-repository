@@ -232,7 +232,7 @@ def atualizar_status(id: int, status: str):
     return {"mensagem": "Status atualizado."}
 
 @app.delete(
-    "/espacos/{id}",
+    "/usuarios/{id}",
     status_code=204,
     dependencies=[Depends(verificar_api_key)]
 )
@@ -254,7 +254,7 @@ def remover_usuario(id: int):
             detail="Usuário não encontrado."
         )
 @app.delete(
-    "/usuarios/{id}",
+    "/espacos/{id}",
     status_code=204,
     dependencies=[Depends(verificar_api_key)]
 )
