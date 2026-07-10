@@ -177,7 +177,7 @@ def criar_solicitacao(dados: SolicitacaoEntrada):
                 dados.espaco_id,
                 dados.data,
                 dados.horario,
-                "Pendente"
+                "pendente"
             )
         )
 
@@ -185,7 +185,7 @@ def criar_solicitacao(dados: SolicitacaoEntrada):
 
     return Solicitacao(
         id=cur.lastrowid,
-        status="Pendente",
+        status="pendente",
         **dados.model_dump()
     )
     
@@ -202,7 +202,7 @@ def listar_solicitacoes():
 @app.put("/solicitacoes/{id}")
 def atualizar_status(id: int, status: str):
 
-    if status not in ["Aprovada", "Recusada"]:
+    if status not in ["aprovada", "recusada"]:
 
         raise HTTPException(
             status_code=400,
