@@ -231,7 +231,11 @@ def atualizar_status(id: int, status: str):
 
     return {"mensagem": "Status atualizado."}
 
-@app.delete("/usuarios/{id}", status_code=204)
+@app.delete(
+    "/espacos/{id}",
+    status_code=204,
+    dependencies=[Depends(verificar_api_key)]
+)
 def remover_usuario(id: int):
 
     with get_conn() as conn:
@@ -249,7 +253,11 @@ def remover_usuario(id: int):
             status_code=404,
             detail="Usuário não encontrado."
         )
-@app.delete("/espacos/{id}", status_code=204)
+@app.delete(
+    "/usuarios/{id}",
+    status_code=204,
+    dependencies=[Depends(verificar_api_key)]
+)
 def remover_espaco(id: int):
 
     with get_conn() as conn:
