@@ -104,16 +104,16 @@ def login(dados: LoginEntrada):
             (dados.email, dados.senha)
         ).fetchone()
 
-if usuario is None:
-    raise HTTPException(
-        status_code=401,
-        detail="Email ou senha inválidos."
-    )
+    if usuario is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Email ou senha inválidos."
+        )
 
-return {
-    "mensagem": "Login realizado com sucesso!",
-    "usuario": dict(usuario)
-}
+    return {
+        "mensagem": "Login realizado com sucesso!",
+        "usuario": dict(usuario)
+    }
 # ═══════════════════ ESPAÇOS ═══════════════════
 
 @app.post("/espacos", response_model=Espaco, status_code=201)
