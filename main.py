@@ -1,10 +1,4 @@
-from fastapi import Depends
-from security import verificar_api_key
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
-from typing import List
-
-from database import get_conn, init_db
+from database import get_conn, init_db, engine, Base, get_session
 from models import (
     Usuario,
     UsuarioEntrada,
@@ -12,11 +6,16 @@ from models import (
     Espaco,
     EspacoEntrada,
     Solicitacao,
-    SolicitacaoEntrada
+    SolicitacaoEntrada,
+    UsuarioModel,
+    EspacoModel   
 )
+from sqlalchemy.orm import Session 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    init_db() 
+    Base.metadata.create_all(bind=engine)
     yield
 
 app = FastAPI(
@@ -68,12 +67,8 @@ def criar_usuario(dados: UsuarioEntrada):
 
 
 @app.get("/usuarios", response_model=List[Usuario])
-def listar_usuarios():
-
-    with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM usuarios").fetchall()
-
-    return [Usuario(**dict(r)) for r in rows]
+def listar_usuarios(session: Session = Depends(get_session)):
+    return session.query(UsuarioModel).all()
 
 
 @app.get("/usuarios/{id}", response_model=Usuario)
@@ -139,12 +134,8 @@ def criar_espaco(dados: EspacoEntrada):
 
 
 @app.get("/espacos", response_model=List[Espaco])
-def listar_espacos():
-
-    with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM espacos").fetchall()
-
-    return [Espaco(**dict(r)) for r in rows]
+def listar_espacos(session: Session = Depends(get_session)):
+    return session.query(EspacoModel).all()
 
 
 @app.get("/espacos/{id}", response_model=Espaco)
