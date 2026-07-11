@@ -1,4 +1,6 @@
 import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DB_PATH = "reservas.db"
 
@@ -47,3 +49,17 @@ def init_db():
                 FOREIGN KEY (espaco_id) REFERENCES espacos(id)
             );
         """)
+DATABASE_URL_ORM = "sqlite:///reservas_publicas.db"
+
+engine = create_engine(DATABASE_URL_ORM, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+class Base(DeclarativeBase):
+    pass
+
+def get_session():
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
