@@ -1,3 +1,8 @@
+from fastapi import FastAPI, HTTPException, Depends
+from typing import List
+from contextlib import asynccontextmanager
+from security import verificar_api_key
+
 from database import get_conn, init_db, engine, Base, get_session
 from models import (
     Usuario,
@@ -261,6 +266,11 @@ def remover_espaco(id: int):
         conn.commit()
 
     if res.rowcount == 0:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Espaço não encontrado."
+        )
 
         raise HTTPException(
             status_code=404,
