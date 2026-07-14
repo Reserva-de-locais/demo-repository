@@ -19,7 +19,8 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
-                senha TEXT NOT NULL
+                senha TEXT NOT NULL,
+                cep TEXT NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS espacos (
@@ -49,7 +50,7 @@ def init_db():
                 FOREIGN KEY (espaco_id) REFERENCES espacos(id)
             );
         """)
-DATABASE_URL_ORM = "sqlite:///reservas_publicas.db"
+DATABASE_URL_ORM = "sqlite:///reservas.db"
 
 engine = create_engine(DATABASE_URL_ORM, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
