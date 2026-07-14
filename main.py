@@ -34,7 +34,7 @@ app = FastAPI(
 
 @app.get("/")
 def raiz():
-    return {"mensagem": "API de Reservas funcionando! 🏟️"}
+    return {"mensagem": "API de Reservas funcionando!"}
 
 #------usuários------
 
